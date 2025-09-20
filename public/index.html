@@ -3,41 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatinho - n8n Webhook Chat</title>
-    <link rel="stylesheet" href="assets/css/main.css">
+    <title>Chatinho - WhatsApp Style Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="chat-container">
+    <div class="whatsapp-container">
+        <!-- Header do Chat -->
         <div class="chat-header">
-            <h1>Chatinho</h1>
-            <p>Chat with n8n webhook integration</p>
+            <div class="contact-info">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="contact-details">
+                    <h2>n8n Assistant</h2>
+                    <span class="status" id="statusIndicator">online</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="header-btn" title="Menu">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
         </div>
         
+        <!-- Área de Mensagens -->
         <div class="chat-messages" id="messages">
-            <!-- Messages will be displayed here -->
+            <div class="date-separator">
+                <span>Hoje</span>
+            </div>
         </div>
         
-        <div class="chat-input">
-            <div class="input-group">
-                <input type="text" id="senderName" placeholder="Your name" value="Anonymous">
-                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="sendToN8n" checked>
-                    <span class="checkmark"></span>
-                    Send to n8n
-                </label>
-                <button id="sendButton">Send</button>
+        <!-- Área de Input -->
+        <div class="chat-input-area">
+            <div class="input-container">
+                <button class="attach-btn" title="Attach">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                
+                <div class="message-input-wrapper">
+                    <input type="text" id="messageInput" placeholder="Digite uma mensagem" autocomplete="off">
+                    <button class="emoji-btn" title="Emoji">
+                        <i class="far fa-smile"></i>
+                    </button>
+                </div>
+                
+                <button class="send-btn" id="sendButton" title="Send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            
+            <!-- Configurações avançadas (colapsível) -->
+            <div class="advanced-settings" id="advancedSettings">
+                <div class="settings-toggle" onclick="toggleSettings()">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="setting-item">
+                        <label for="senderName">Seu nome:</label>
+                        <input type="text" id="senderName" placeholder="Seu nome" value="Você">
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="sendToN8n" checked>
+                            <span class="slider">
+                                <span class="slider-text">Enviar para n8n</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <div class="webhook-info">
-        <h3>n8n Webhook Integration</h3>
-        <p><strong>Incoming webhook endpoint:</strong> <code>POST /webhook/n8n</code></p>
-        <p><strong>Expected payload:</strong> <code>{"message": "Hello from n8n", "sender": "n8n"}</code></p>
-    </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="assets/js/chat.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

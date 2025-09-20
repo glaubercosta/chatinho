@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatinho Debug</title>
+</head>
+<body>
+    <h1>Debug do Chatinho</h1>
+    <button onclick="testDisplayMessage()">Testar displayMessage</button>
+    <button onclick="testSendMessage()">Testar Send Message</button>
+    <button onclick="checkElements()">Verificar Elementos</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        // Abrir a janela principal do chatinho
+        const chatWindow = window.open('http://localhost:3002', 'chatinho', 'width=800,height=600');
+        
+        function testDisplayMessage() {
+            if (chatWindow) {
+                const testMessage = {
+                    text: 'Teste direto via script de debug',
+                    sender: 'Debug Script',
+                    source: 'client',
+                    timestamp: new Date().toISOString()
+                };
+                
+                chatWindow.displayMessage(testMessage);
+                document.getElementById('output').innerHTML += '<p>displayMessage executado</p>';
+            }
+        }
+        
+        function testSendMessage() {
+            if (chatWindow && chatWindow.document) {
+                const messageInput = chatWindow.document.getElementById('messageInput');
+                const senderInput = chatWindow.document.getElementById('senderName');
+                
+                if (messageInput) {
+                    messageInput.value = 'Teste de envio via debug script';
+                    senderInput.value = 'Debug Tester';
+                    chatWindow.sendMessage();
+                    document.getElementById('output').innerHTML += '<p>sendMessage executado</p>';
+                }
+            }
+        }
+        
+        function checkElements() {
+            if (chatWindow && chatWindow.document) {
+                const messages = chatWindow.document.getElementById('messages');
+                const input = chatWindow.document.getElementById('messageInput');
+                const button = chatWindow.document.getElementById('sendButton');
+                
+                document.getElementById('output').innerHTML += 
+                    '<p>Messages container: ' + !!messages + '</p>' +
+                    '<p>Message input: ' + !!input + '</p>' +
+                    '<p>Send button: ' + !!button + '</p>' +
+                    '<p>Mensagens no container: ' + (messages ? messages.children.length : 'N/A') + '</p>';
+            }
+        }
+        
+        setTimeout(checkElements, 2000); // Auto-check após 2 segundos
+    </script>
+</body>
+</html>

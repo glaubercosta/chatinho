@@ -69,6 +69,11 @@ class SocketController {
       await this.handleMessage(socket, data);
     });
 
+    // Handle send_message events (from client)
+    socket.on('send_message', async (data) => {
+      await this.handleMessage(socket, data);
+    });
+
     // Handle typing indicators
     socket.on('typing', (data) => {
       this.handleTyping(socket, data);

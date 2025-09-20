@@ -28,6 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up event listeners
     setupEventListeners();
+    
+    // Test message display
+    setTimeout(() => {
+        console.log('Adding test message...');
+        displayMessage({
+            text: 'Teste de inicialização - se você vê esta mensagem, o sistema está funcionando!',
+            sender: 'Sistema',
+            source: 'system',
+            timestamp: new Date().toISOString()
+        });
+    }, 1000);
 });
 
 function initializeSocket() {

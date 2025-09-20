@@ -89,6 +89,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Debug page
+app.get('/debug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'debug.html'));
+});
+
 // API routes
 app.use('/api', apiRoutes);
 

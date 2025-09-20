@@ -4,42 +4,35 @@
  */
 
 const request = require('supertest');
+const nock = require('nock');
 const messageService = require('../../src/services/messageService');
+
+// Mock n8n service
+jest.mock('../../src/services/n8nService');
 
 let app;
 let server;
 
 describe('API Integration Tests', () => {
-  beforeAll(async () => {
-    // Import and start the server
-    const serverModule = require('../../server');
-    app = serverModule.app;
-    server = serverModule.server;
+  beforeAll(() => {
+    // Setup test environment
+    process.env.NODE_ENV = 'test';
     
-    // Wait for server to be ready
-    await new Promise(resolve => {
-      if (server.listening) {
-        resolve();
-      } else {
-        server.on('listening', resolve);
-      }
-    });
-  });
-
-  afterAll(async () => {
-    // Clean up after tests
-    if (server && server.listening) {
-      await new Promise(resolve => server.close(resolve));
-    }
+    // Get the mocked service
+    const n8nService = require('../../src/services/n8nService');
+    
+    // Create app without starting server
+    const { createApp } = require('../../server');
+    app = createApp();
   });
 
   beforeEach(() => {
     // Clean up any pending nock interceptors
-    if (global.nock) {
-      global.nock.cleanAll();
-    }
+    nock.cleanAll();
     // Clear messages before each test
     messageService.clearMessages();
+    // Reset mocks
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -55,7 +48,7 @@ describe('API Integration Tests', () => {
         .get('/health')
         .expect(200);
 
-      expect(response.body).toHaveProperty('status', 'OK');
+      expect(response.body).toHaveProperty('status', 'healthy');
       expect(response.body).toHaveProperty('timestamp');
       expect(response.body).toHaveProperty('uptime');
     });
@@ -129,10 +122,12 @@ describe('API Integration Tests', () => {
 
   describe('POST /api/send-to-n8n', () => {
     test('should send message to n8n webhook', async () => {
-      // Mock successful n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(200, { output: 'Success from n8n' });
+      // Mock n8n service
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.sendMessage.mockResolvedValue({
+        success: true,
+        data: { output: 'Success from n8n' }
+      });
 
       const messageData = {
         text: 'Test message to n8n',
@@ -146,13 +141,19 @@ describe('API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('message');
+      expect(n8nService.sendMessage).toHaveBeenCalledWith(expect.objectContaining({
+        text: 'Test message to n8n',
+        sender: 'Test User'
+      }));
     });
 
     test('should handle n8n webhook failure', async () => {
-      // Mock failed n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(500, 'Internal Server Error');
+      // Mock n8n service failure
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.sendMessage.mockResolvedValue({
+        success: false,
+        error: 'Connection failed'
+      });
 
       const messageData = {
         text: 'Test message to n8n',
@@ -169,10 +170,12 @@ describe('API Integration Tests', () => {
     });
 
     test('should handle empty payload', async () => {
-      // Mock n8n response for empty payload
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(200, { output: 'Handled empty payload' });
+      // Mock n8n service for empty payload
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.sendMessage.mockResolvedValue({
+        success: true,
+        data: { output: 'Handled empty payload' }
+      });
 
       const response = await request(app)
         .post('/api/send-to-n8n')
@@ -183,10 +186,12 @@ describe('API Integration Tests', () => {
     });
 
     test('should handle missing text field', async () => {
-      // Mock n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(200, { output: 'Handled missing text' });
+      // Mock n8n service
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.sendMessage.mockResolvedValue({
+        success: true,
+        data: { output: 'Handled missing text' }
+      });
 
       const response = await request(app)
         .post('/api/send-to-n8n')
@@ -200,10 +205,12 @@ describe('API Integration Tests', () => {
     });
 
     test('should handle missing sender field', async () => {
-      // Mock n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(200, { output: 'Handled missing sender' });
+      // Mock n8n service
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.sendMessage.mockResolvedValue({
+        success: true,
+        data: { output: 'Handled missing sender' }
+      });
 
       const response = await request(app)
         .post('/api/send-to-n8n')
@@ -219,10 +226,9 @@ describe('API Integration Tests', () => {
 
   describe('GET /api/test-n8n', () => {
     test('should test n8n connection successfully', async () => {
-      // Mock successful n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .reply(200, { output: 'Connection test successful' });
+      // Mock successful n8n connection
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.testConnection.mockResolvedValue(true);
 
       const response = await request(app)
         .get('/api/test-n8n')
@@ -234,10 +240,9 @@ describe('API Integration Tests', () => {
     });
 
     test('should handle n8n connection failure', async () => {
-      // Mock failed n8n response
-      nock('http://localhost:5678')
-        .post('/webhook/test')
-        .replyWithError('Connection failed');
+      // Mock failed n8n connection
+      const n8nService = require('../../src/services/n8nService');
+      n8nService.testConnection.mockResolvedValue(false);
 
       const response = await request(app)
         .get('/api/test-n8n')

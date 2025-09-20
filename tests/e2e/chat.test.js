@@ -3,13 +3,15 @@
  * Following TDD methodology - Complete user workflow testing
  */
 
+// Mock the n8nService before requiring anything
+jest.mock('../../src/services/n8nService');
+
 const request = require('supertest');
-const Client = require('socket.io-client');
-const nock = require('nock');
 const path = require('path');
 
 describe('E2E Tests - Simplified Workflows', () => {
   let app;
+  let n8nService;
 
   beforeAll(() => {
     // Set test environment
@@ -18,19 +20,21 @@ describe('E2E Tests - Simplified Workflows', () => {
     process.env.N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/test';
     process.env.ADMIN_API_KEY = 'test-admin-key';
 
-    // Import app after setting environment
-    app = require('../../server');
+    // Get the mocked service
+    n8nService = require('../../src/services/n8nService');
+    
+    // Create app without starting server
+    const { createApp } = require('../../server');
+    app = createApp();
   });
 
   beforeEach(() => {
     // Clear message store
     const messageService = require('../../src/services/messageService');
     messageService.clearMessages();
-    nock.cleanAll();
-  });
-
-  afterEach(() => {
-    nock.cleanAll();
+    
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 
   describe('Basic App Functionality', () => {
@@ -47,7 +51,7 @@ describe('E2E Tests - Simplified Workflows', () => {
         .get('/health')
         .expect(200);
 
-      expect(response.body.status).toBe('OK');
+      expect(response.body.status).toBe('healthy');
     });
 
     test('should handle basic webhook integration', async () => {

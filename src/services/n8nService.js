@@ -111,7 +111,7 @@ class N8nWebhookService {
     };
 
     const response = await this.sendMessage(testMessage);
-    return response !== null;
+    return response && response.success;
   }
 }
 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Botão SEND - n8n Webhook</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; }
+        input { padding: 5px; margin: 5px; width: 300px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Teste do Botão SEND - Webhook n8n</h1>
+    
+    <div class="test-section">
+        <h3>Teste 1: Enviar mensagem COM webhook n8n</h3>
+        <input type="text" id="message1" value="Teste COM webhook - Esta mensagem deve ir para o n8n!" placeholder="Sua mensagem">
+        <br>
+        <input type="text" id="sender1" value="Testador" placeholder="Seu nome">
+        <br>
+        <label><input type="checkbox" id="webhook1" checked> Enviar para n8n</label>
+        <br>
+        <button onclick="sendTest1()">ENVIAR COM WEBHOOK</button>
+        <div id="log1" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Teste 2: Enviar mensagem SEM webhook n8n</h3>
+        <input type="text" id="message2" value="Teste SEM webhook - Esta mensagem NÃO deve ir para o n8n" placeholder="Sua mensagem">
+        <br>
+        <input type="text" id="sender2" value="Testador" placeholder="Seu nome">
+        <br>
+        <label><input type="checkbox" id="webhook2"> Enviar para n8n</label>
+        <br>
+        <button onclick="sendTest2()">ENVIAR SEM WEBHOOK</button>
+        <div id="log2" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Status da Conexão</h3>
+        <div id="connection-status" class="log">Conectando...</div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const connectionStatus = document.getElementById('connection-status');
+        
+        socket.on('connect', () => {
+            connectionStatus.innerHTML = '✅ Conectado ao servidor Socket.IO - ID: ' + socket.id;
+            console.log('Connected to server');
+        });
+        
+        socket.on('disconnect', () => {
+            connectionStatus.innerHTML = '❌ Desconectado do servidor';
+            console.log('Disconnected from server');
+        });
+        
+        socket.on('message', (message) => {
+            console.log('Mensagem recebida:', message);
+        });
+        
+        function sendTest1() {
+            const message = document.getElementById('message1').value;
+            const sender = document.getElementById('sender1').value;
+            const sendToN8n = document.getElementById('webhook1').checked;
+            
+            const data = {
+                text: message,
+                sender: sender,
+                sendToN8n: sendToN8n
+            };
+            
+            document.getElementById('log1').innerHTML = 
+                '📤 Enviando: ' + JSON.stringify(data, null, 2);
+            
+            console.log('Enviando teste 1:', data);
+            socket.emit('send_message', data);
+        }
+        
+        function sendTest2() {
+            const message = document.getElementById('message2').value;
+            const sender = document.getElementById('sender2').value;
+            const sendToN8n = document.getElementById('webhook2').checked;
+            
+            const data = {
+                text: message,
+                sender: sender,
+                sendToN8n: sendToN8n
+            };
+            
+            document.getElementById('log2').innerHTML = 
+                '📤 Enviando: ' + JSON.stringify(data, null, 2);
+            
+            console.log('Enviando teste 2:', data);
+            socket.emit('send_message', data);
+        }
+    </script>
+</body>
+</html>

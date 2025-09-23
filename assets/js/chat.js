@@ -1,4 +1,5 @@
 // Initialize Socket.IO connection
+const CHAT_HISTORY_EVENT = 'chat_history';
 const socket = io();
 
 // DOM elements
@@ -75,7 +76,7 @@ socket.on('message', (message) => {
     displayMessage(message);
 });
 
-socket.on('chat_history', (messages) => {
+socket.on(CHAT_HISTORY_EVENT, (messages) => {
     messages.forEach(message => {
         displayMessage(message);
     });

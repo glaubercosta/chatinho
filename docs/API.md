@@ -338,7 +338,7 @@ New message broadcast to all clients.
 }
 ```
 
-#### recent_messages
+#### chat_history
 
 Message history sent to newly connected client.
 

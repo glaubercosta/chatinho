@@ -1,4 +1,5 @@
 // Initialize Socket.IO connection
+const CHAT_HISTORY_EVENT = 'chat_history';
 console.log('Initializing Socket.IO...');
 const socket = io();
 console.log('Socket.IO initialized:', socket);
@@ -158,7 +159,7 @@ socket.on('message', (message) => {
     displayMessage(message);
 });
 
-socket.on('chat_history', (messages) => {
+socket.on(CHAT_HISTORY_EVENT, (messages) => {
     console.log('Loading chat history:', messages.length, 'messages');
     
     // Clear existing messages except date separator

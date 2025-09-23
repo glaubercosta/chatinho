@@ -1,4 +1,5 @@
 // Socket.IO connection
+const CHAT_HISTORY_EVENT = 'chat_history';
 let socket;
 let messagesContainer, messageInput, senderInput, sendButton, sendToN8nCheckbox, statusIndicator;
 
@@ -60,7 +61,7 @@ function initializeSocket() {
         displayMessage(message);
     });
     
-    socket.on('chat_history', (messages) => {
+    socket.on(CHAT_HISTORY_EVENT, (messages) => {
         console.log('📜 Loading chat history:', messages.length, 'messages');
         loadChatHistory(messages);
     });

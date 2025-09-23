@@ -53,7 +53,7 @@ class SocketController {
   sendRecentMessages(socket) {
     try {
       const recentMessages = messageService.getMessages(10); // Last 10 messages
-      socket.emit('recent_messages', recentMessages);
+      socket.emit('chat_history', recentMessages);
       console.log(`📜 Sent ${recentMessages.length} recent messages to ${socket.id}`);
     } catch (error) {
       console.error('❌ Error sending recent messages:', error);

@@ -205,7 +205,7 @@ chatinho/
 
 **Server to Client**:
 - `message` - New message broadcast
-- `recent_messages` - Message history on connect
+- `chat_history` - Message history on connect
 - `user_typing` - Another user is typing
 - `user_disconnected` - User left chat
 - `error` - Error message

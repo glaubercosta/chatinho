@@ -149,7 +149,7 @@ n8n workflows can send messages to the chat:
 
 **Server → Client:**
 - `message` - New message broadcast
-- `recent_messages` - Message history for new connections
+- `chat_history` - Message history for new connections
 - `user_typing` - Typing indicators from other users
 
 ### Webhook Endpoints

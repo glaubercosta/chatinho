@@ -238,16 +238,29 @@ class SocketController {
 
   /**
    * Broadcast message from external source (like webhook)
+   * @param {Object} messageData - Message already persisted or to persist
+   * @param {Object} [options]
+   * @param {boolean} [options.persist=false] - Whether to store message before emitting
    */
-  broadcastExternalMessage(messageData) {
+  broadcastExternalMessage(messageData, { persist = false } = {}) {
     try {
-      // Store message
-      messageService.addN8nResponse(messageData);
-      
+      let messageToBroadcast = messageData;
+
+      if (persist) {
+        // Persist message when callers haven't already stored it
+        if (messageData.source === 'n8n') {
+          messageToBroadcast = messageService.addN8nResponse(messageData);
+        } else if (messageData.source === 'system') {
+          messageToBroadcast = messageService.addSystemMessage(messageData.text);
+        } else {
+          messageToBroadcast = messageService.addMessage(messageData);
+        }
+      }
+
       // Broadcast to all connected clients
-      this.io.emit('message', messageData);
-      
-      console.log('📡 External message broadcasted:', messageData.sender);
+      this.io.emit('message', messageToBroadcast);
+
+      console.log('📡 External message broadcasted:', messageToBroadcast.sender);
     } catch (error) {
       console.error('❌ Error broadcasting external message:', error);
     }

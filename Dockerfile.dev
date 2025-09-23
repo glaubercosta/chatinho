@@ -1,0 +1,38 @@
+# Dockerfile para desenvolvimento
+FROM node:18-alpine AS development
+
+# Instalar ferramentas necessárias
+RUN apk add --no-cache git
+
+# Criar usuário para desenvolvimento
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S chatinho -u 1001
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar todas as dependências (incluindo dev)
+RUN npm ci
+
+# Mudar propriedade para o usuário
+RUN chown -R chatinho:nodejs /app
+
+# Mudar para usuário não-root
+USER chatinho
+
+# Expor porta
+EXPOSE 3002
+
+# Variáveis de ambiente para desenvolvimento
+ENV NODE_ENV=development
+ENV PORT=3002
+
+# Health check para desenvolvimento
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3002/health || exit 1
+
+# Comando padrão para desenvolvimento
+CMD ["npm", "run", "dev"]

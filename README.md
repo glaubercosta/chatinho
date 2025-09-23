@@ -245,9 +245,34 @@ npm run build
 
 ### Docker Deployment
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
+For containerized deployment, see the comprehensive [Docker Guide](docs/DOCKER.md).
+
+#### Quick Docker Start
+
+```bash
+# Build and run with Docker Compose
+cp .env.docker .env  # Adjust variables as needed
+docker-compose up -d
+
+# Or use provided scripts (Windows)
+scripts\docker\build.bat
+scripts\docker\deploy.bat production up
+
+# Linux/Mac
+./scripts/docker/build.sh
+./scripts/docker/deploy.sh production up
+```
+
+#### Docker Features
+
+- **Multi-stage builds** for optimized production images
+- **Non-root user** for enhanced security
+- **Health checks** and resource limits
+- **Development and production** profiles
+- **Volume persistence** for logs and data
+- **Nginx integration** for production deployments
+
+Access the application at `http://localhost:3002` after deployment.
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .

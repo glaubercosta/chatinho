@@ -81,10 +81,8 @@ describe('Webhook Integration Tests', () => {
   beforeEach(() => {
     // Clear messages before each test by reinitializing the service
     const messageService = require('../../src/services/messageService');
-    const messages = messageService.getMessages();
-    // Manually clear the array
-    messages.splice(0, messages.length);
-    
+    messageService.clearMessages();
+
     // Clean nock interceptors
     nock.cleanAll();
   });
@@ -120,14 +118,33 @@ describe('Webhook Integration Tests', () => {
 
       const messageService = require('../../src/services/messageService');
       const messages = messageService.getMessages();
-      
-      expect(messages.length).toBeGreaterThan(0);
+
+      expect(messages.length).toBe(1);
       const lastMessage = messages[messages.length - 1];
       expect(lastMessage).toMatchObject({
         text: 'Test message for storage',
         sender: 'Test Sender',
         source: 'n8n' // Real implementation uses 'n8n'
       });
+    });
+
+    test('should increase stored message count by one per request', async () => {
+      const messageService = require('../../src/services/messageService');
+      expect(messageService.getMessages().length).toBe(0);
+
+      await request(app)
+        .post('/webhook/n8n')
+        .send({ message: 'First message', sender: 'n8n Assistant' })
+        .expect(200);
+
+      expect(messageService.getMessages().length).toBe(1);
+
+      await request(app)
+        .post('/webhook/n8n')
+        .send({ message: 'Second message', sender: 'n8n Assistant' })
+        .expect(200);
+
+      expect(messageService.getMessages().length).toBe(2);
     });
 
     test('should handle missing message field gracefully', async () => {
@@ -226,13 +243,35 @@ describe('Webhook Integration Tests', () => {
       const messageService = require('../../src/services/messageService');
       const messages = messageService.getMessages();
       
-      expect(messages.length).toBeGreaterThan(0);
+      expect(messages.length).toBe(1);
       const lastMessage = messages[messages.length - 1];
       expect(lastMessage).toMatchObject({
         text: 'Generic webhook test',
         sender: 'Generic Service',
         source: 'webhook' // Generic webhooks use 'webhook' source
       });
+    });
+  });
+
+  describe('Webhook message retrieval', () => {
+    test('should expose persisted webhook messages without duplicates via /api/messages', async () => {
+      const payload = {
+        message: 'Duplicate check message',
+        sender: 'Duplicate Tester'
+      };
+
+      await request(app)
+        .post('/webhook/n8n')
+        .send(payload)
+        .expect(200);
+
+      const response = await request(app)
+        .get('/api/messages')
+        .expect(200);
+
+      expect(response.body).toMatchObject({ success: true, total: 1 });
+      expect(response.body.messages).toHaveLength(1);
+      expect(response.body.messages[0].text).toBe('Duplicate check message');
     });
   });
 

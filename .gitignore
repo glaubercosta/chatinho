@@ -66,3 +66,20 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+# Project planning and management files
+# These are working documents and should not be versioned
+V2.0-PLANNING.md
+JIRA-IMPORT-GUIDE.md
+jira-import.csv
+jira-import.json
+jira-advanced-template.csv
+jira-kanban-import.csv
+GIT-WORKFLOW.md
+
+# Project management exports
+*.xlsx
+*-planning.*
+*-import.*
+project-*.csv
+project-*.json

@@ -76,10 +76,17 @@ jira-import.json
 jira-advanced-template.csv
 jira-kanban-import.csv
 GIT-WORKFLOW.md
+PROJECT-TEMPLATE-PROMPT.md
+BEST-PRACTICES-SUMMARY.md
 
 # Project management exports
 *.xlsx
 *-planning.*
 *-import.*
+*-template.*
+*-summary.*
+*-practices.*
 project-*.csv
 project-*.json
+best-practices-*.md
+template-*.md
